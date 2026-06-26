@@ -1,0 +1,109 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://docs.firecrawl.dev/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Introduction
+
+> Firecrawl API Reference (v2)
+
+The Firecrawl API gives you programmatic access to web data. All endpoints share a common base URL, authentication scheme, and response format described on this page.
+
+## Features
+
+<CardGroup cols={3}>
+  <Card title="Scrape" icon="markdown" href="/api-reference/endpoint/scrape" color="FF713C">
+    Extract content from any webpage in markdown or json format.
+  </Card>
+
+  <Card title="Crawl" icon="spider" href="/api-reference/endpoint/crawl-post" color="FF713C">
+    Crawl entire websites, extract their content and metadata.
+  </Card>
+
+  <Card title="Map" icon="map" href="/api-reference/endpoint/map" color="FF713C">
+    Get a complete list of URLs from any website quickly and reliably.
+  </Card>
+
+  <Card title="Search" icon="magnifying-glass" href="/api-reference/endpoint/search" color="FF713C">
+    Search the web and get full page content in any format.
+  </Card>
+</CardGroup>
+
+## Agentic Features
+
+<CardGroup cols={3}>
+  <Card title="Agent" icon="robot" href="/api-reference/endpoint/agent" color="FF713C">
+    Autonomously navigate and extract structured data from websites.
+  </Card>
+
+  <Card title="Browser" icon="browser" href="/api-reference/endpoint/browser-create" color="FF713C">
+    Create and control browser sessions for interactive web tasks.
+  </Card>
+</CardGroup>
+
+## Base URL
+
+All requests use the following base URL:
+
+```bash  theme={null}
+https://api.firecrawl.dev
+```
+
+## Authentication
+
+Every request requires an `Authorization` header with your API key:
+
+```bash  theme={null}
+Authorization: Bearer fc-YOUR-API-KEY
+```
+
+Include this header in all API calls. You can find your API key in the [Firecrawl dashboard](https://www.firecrawl.dev/app/api-keys).
+
+<CodeGroup>
+  ```bash cURL theme={null}
+  curl -X POST "https://api.firecrawl.dev/v2/scrape" \
+    -H "Authorization: Bearer fc-YOUR-API-KEY" \
+    -H "Content-Type: application/json" \
+    -d '{"url": "https://example.com"}'
+  ```
+
+  ```python Python theme={null}
+  from firecrawl import Firecrawl
+
+  firecrawl = Firecrawl(api_key="fc-YOUR-API-KEY")
+
+  result = firecrawl.scrape("https://example.com")
+  ```
+
+  ```js Node theme={null}
+  import Firecrawl from '@mendable/firecrawl-js';
+
+  const firecrawl = new Firecrawl({ apiKey: "fc-YOUR-API-KEY" });
+
+  const result = await firecrawl.scrape('https://example.com');
+  ```
+</CodeGroup>
+
+## Response codes
+
+Firecrawl uses conventional HTTP status codes to indicate the outcome of your requests. Codes in the `2xx` range indicate success, `4xx` codes indicate client errors, and `5xx` codes indicate server errors.
+
+| Status | Description                           |
+| ------ | ------------------------------------- |
+| `200`  | Request was successful.               |
+| `400`  | Invalid request parameters.           |
+| `401`  | API key is missing or invalid.        |
+| `402`  | Payment required.                     |
+| `404`  | The requested resource was not found. |
+| `429`  | Rate limit exceeded.                  |
+| `5xx`  | Server error on Firecrawl's side.     |
+
+When a `5xx` error occurs, the response body includes a specific error code to help you diagnose the issue.
+
+## Rate limit
+
+The Firecrawl API enforces rate limits on all endpoints to ensure service stability. Rate limits are based on the number of requests within a specific time window.
+
+When you exceed the rate limit, the API returns a `429` status code. Back off and retry the request after a short delay.
+
+
+Built with [Mintlify](https://mintlify.com).
