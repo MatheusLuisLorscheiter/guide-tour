@@ -109,6 +109,8 @@ export interface Event {
   event_date: string;
   estimated_impact: string | null;
   source_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }

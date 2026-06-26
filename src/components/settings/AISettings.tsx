@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, TenantSettings } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { Loader2, Save, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -49,8 +49,9 @@ export function AISettings({ tenantId }: { tenantId: string }) {
       if (error) throw error;
       
       setMessage({ type: 'success', text: 'Configurações de IA salvas com sucesso!' });
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Erro ao salvar configurações' });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao salvar configurações';
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setSaving(false);
     }

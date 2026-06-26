@@ -62,7 +62,7 @@ export const PrintableGuide = forwardRef<HTMLDivElement, PrintableGuideProps>(
 
                 {step.media && step.media.length > 0 && (
                   <div className="grid grid-cols-2 gap-4 mt-4">
-                    {step.media.map((m: any, mIdx: number) => (
+                    {step.media.map((m, mIdx: number) => (
                       m.type === 'image' && (
                         <div key={mIdx} className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-video bg-slate-100 flex items-center justify-center">
                           <img

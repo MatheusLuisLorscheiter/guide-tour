@@ -1,16 +1,30 @@
-import { useState, useEffect } from 'react';
-import { supabase, Schedule, Event } from '../lib/supabase';
-import { Loader2, ArrowLeft, CalendarDays, Plus, Clock, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { supabase, Schedule } from '../lib/supabase';
+import { Loader2, ArrowLeft, CalendarDays, Plus, Clock, Users, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTenant } from '../contexts/TenantContext';
 import { useAuth } from '../contexts/AuthContext';
 
+type ScheduleAssignment = {
+  id: string;
+  status: 'pending' | 'confirmed' | 'declined';
+  user_id: string;
+};
+
+type ScheduleRow = Schedule & {
+  event: { id: string; title: string } | null;
+  assignments: ScheduleAssignment[];
+};
+
 export function Schedules() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAdmin } = useTenant();
   const { user } = useAuth();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const selectedEventId = searchParams.get('eventId');
+  const selectedEventTitle = searchParams.get('eventTitle');
+  const [schedules, setSchedules] = useState<ScheduleRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
@@ -20,7 +34,6 @@ export function Schedules() {
 
   const fetchSchedules = async () => {
     try {
-      // In a real app we'd also fetch the event and assignments via joins
       const { data, error } = await supabase
         .from('schedules')
         .select(`
@@ -31,7 +44,7 @@ export function Schedules() {
         .order('start_time', { ascending: true });
 
       if (error) throw error;
-      setSchedules(data || []);
+      setSchedules((data as ScheduleRow[] | null) || []);
     } catch (err) {
       console.error('Error fetching schedules:', err);
     } finally {
@@ -78,6 +91,16 @@ export function Schedules() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {selectedEventId && selectedEventTitle && (
+          <div className="glass-panel rounded-2xl p-4 mb-6 border border-tenant-primary/30">
+            <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Evento selecionado</p>
+            <p className="text-white font-semibold">{selectedEventTitle}</p>
+            <p className="text-sm text-slate-400 mt-1">
+              Você já veio do Radar de Eventos. Use “Novo Turno” para criar a escala vinculada a este evento.
+            </p>
+          </div>
+        )}
+
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="w-8 h-8 text-tenant-primary animate-spin" />
@@ -92,8 +115,8 @@ export function Schedules() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {schedules.map((schedule: any, index) => {
-              const myAssignment = schedule.assignments?.find((a: any) => a.user_id === user?.id);
+            {schedules.map((schedule, index) => {
+              const myAssignment = schedule.assignments?.find((assignment) => assignment.user_id === user?.id);
               
               return (
                 <motion.div
@@ -147,6 +170,38 @@ export function Schedules() {
                 </motion.div>
               )
             })}
+          </div>
+        )}
+
+        {showModal && (
+          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="glass-panel rounded-2xl p-6 w-full max-w-lg border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white">Novo Turno</h3>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <p className="text-slate-300 text-sm">
+                O fluxo de criação completa será conectado na próxima etapa. Enquanto isso, o contexto do evento já está disponível para vinculação:
+              </p>
+              <p className="mt-3 text-tenant-primary font-medium">
+                {selectedEventTitle || 'Nenhum evento selecionado do Radar'}
+              </p>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-medium"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
